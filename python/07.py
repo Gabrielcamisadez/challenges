@@ -1,3 +1,7 @@
+# EN
+# Codename: levelx07
+# Mission: In this mission you will receive a string in hexadecimal format, you must return it converted to ascii.
+
 import socket
 
 HOST = "temperance.hackmyvm.eu"
