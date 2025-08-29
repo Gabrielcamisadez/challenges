@@ -10,13 +10,12 @@ Também estou utilizando para treinar meu ENglish
 
 ---
 
-### ✨ O que você encontrará aqui
+### ✨ 
 
 Cada desafio resolvido inclui um arquivo de documentação (geralmente em `.md` ou `.txt`) com os seguintes pontos:
 
 * **Descrição do Desafio**: Um breve resumo do objetivo.
-* **Ferramentas Utilizadas**: A lista de ferramentas que usei na exploração.
 * **Passos da Solução**: Um passo a passo claro, explicando a lógica e a metodologia adotada para chegar à flag ou ao objetivo final.
-* **Lições Aprendidas**: Insights e conceitos importantes que foram reforçados durante a resolução.
+
 
 
