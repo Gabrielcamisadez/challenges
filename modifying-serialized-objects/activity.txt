@@ -73,3 +73,5 @@ Table of Contents
   └────
 
   Copy to dev tools Cookie value and reload the page
+
+  And now our customized object is 'admin bool == 1' !!
