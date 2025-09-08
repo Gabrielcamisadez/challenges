@@ -1,0 +1,86 @@
+                         ━━━━━━━━━━━━━━━━━━━━━
+                          EXPOSED STACK TRACE
+
+                                Gabriel
+                         ━━━━━━━━━━━━━━━━━━━━━
+
+
+Table of Contents
+─────────────────
+
+1. Upload Files Function at Transactions Page
+2. Stack-Trace after modify the cookie
+
+
+1 Upload Files Function at Transactions Page
+════════════════════════════════════════════
+
+  After review the source code html at page, is possible to identify the
+  application expect an .xml file.
+
+  As pentesters or security researches, we need to try test the
+  application and see how it responds.
+
+  After send a .txt file ->
+
+  ┌────
+  │ An unhandled exception occurred while processing the request.
+  │ XmlException: Data at the root level is invalid. Line 1, position 1.
+  │ System.Xml.XmlTextReaderImpl.Throw(Exception e)
+  │ 
+  │ Stack Query Cookies Headers Routing
+  │ XmlException: Data at the root level is invalid. Line 1, position 1.
+  │ System.Xml.XmlTextReaderImpl.Throw(Exception e)
+  │ System.Xml.XmlTextReaderImpl.Throw(string res, string arg)
+  │ System.Xml.XmlTextReaderImpl.ParseRootLevelWhitespace()
+  │ System.Xml.XmlTextReaderImpl.ParseDocumentContent()
+  │ SecureBank.Services.UploadFileBL.ParseXml(string xml) in UploadFileBL.cs
+  └────
+
+  The firt stack-trace found at secure-bank.
+
+
+2 Stack-Trace after modify the cookie
+═════════════════════════════════════
+
+  Authenticated at secure-bank, our cookie is half base64 encoded, with
+  can be analysed at future…
+
+  With an random requests at some page, if we modify few caracters at
+  cookie start, we can find another stack-strace ->
+
+  Request at /Profile page ->
+  ┌────
+  │ GET /Profile HTTP/1.1
+  │ Host: localhost:1337
+  │ sec-ch-ua: "Chromium";v="139", "Not;A=Brand";v="99"
+  │ sec-ch-ua-mobile: ?0
+  │ sec-ch-ua-platform: "Linux"
+  │ Accept-Language: en-US,en;q=0.9
+  │ Upgrade-Insecure-Requests: 1
+  │ User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+  │ Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+  │ Sec-Fetch-Site: same-origin
+  │ Sec-Fetch-Mode: navigate
+  │ Sec-Fetch-User: ?1
+  │ Sec-Fetch-Dest: document
+  │ Referer: http://localhost:1337/Store
+  │ Accept-Encoding: gzip, deflate, br
+  │ Cookie: SessionId=YmllbEBtYWlsLmNvbQ%3D%3D%26d7dec03887986e54e6f21fa971edde5a9ab82535f23df57de6abae94992310f1%260
+  │ Connection: keep-alive
+  └────
+
+  The response of that request are expected for the system, but the
+  response with cookie start modified we provoke a error
+
+  Original Cookie ->
+  ┌────
+  │ YmllbEBtYWlsLmNvbQ%3D%3D%26d7dec03887986e54e6f21fa971edde5a9ab82535f23df57de6abae94992310f1%260
+  └────
+
+  Modified ->
+  ┌────
+  │ YmlbEBtYWlsLmNvbQ%3D%3D%26d7dec03887986e54e6f21fa971edde5a9ab82535f23df57de6abae94992310f1%260
+  └────
+
+  Just remove one ’l’ at start

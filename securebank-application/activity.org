@@ -1,0 +1,26 @@
+#+title: Securebank WAPT Introduction
+#+author: : Gabriel
+#+description: SecureBank is a FinTech application which contains all OWASP TOP 10 security vulnerabilities along with some other security flaws found in real-world applications.
+
+* Securebank Lab setup ->
+
+https://github.com/ssrdio/SecureBank
+
+#+begin_src sh
+git clone https://github.com/ssrdio/SecureBank.git
+
+docker compose up -d
+#+end_src
+
+ * Default users ->
+
+#+begin_src text
+admin@ssrd.io:admin
+developer@ssrd.io:test
+yoda@ssrd.io:test
+tester@ssrd.io:test
+#+end_src
+
+This docker-compose file is configured to expose the application at port *80*
+
+*

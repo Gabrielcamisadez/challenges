@@ -1,0 +1,206 @@
+                         ━━━━━━━━━━━━━━━━━━━━━
+                          EXPOSED SWAGGER API
+
+                                Gabriel
+                         ━━━━━━━━━━━━━━━━━━━━━
+
+
+Table of Contents
+─────────────────
+
+1. Information Disclosure
+.. 1. Swager API Exposed
+.. 2. Directory Listing
+
+
+1 Information Disclosure
+════════════════════════
+
+1.1 Swager API Exposed
+──────────────────────
+
+
+
+  :CVSS: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N
+
+  :RISK: MEDIUM
+
+  Using any enumeration methods ant tools, it is possible to see the
+  presence of the following resources
+
+  <http://localhost:1337/swagger/index.html>
+  <http://localhost:1337/swagger/v1/swagger.json>
+
+  These resources contain the swagger documentation ->
+
+  <file:img/swagger.png>
+
+
+  Enumeration with `gobuster' demonstrated some interesting things
+
+  command used ->
+  ┌────
+  │ gobuster dir --delay 2000ms -u http://localhost:1337 -w /usr/share/wordlists/SecLists/Discovery/Web-Content/BurpSuite
+  │ -ParamMiner/lowercase-headers
+  └────
+
+  ┌────
+  │ ===============================================================
+  │ Gobuster v3.6
+  │ by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+  │ ===============================================================
+  │ [+] Url:                     http://localhost:1337
+  │ [+] Method:                  GET
+  │ [+] Threads:                 10
+  │ [+] Delay:                   2s
+  │ [+] Wordlist:                /usr/share/wordlists/SecLists/Discovery/Web-Content/B
+  │ urpSuite-ParamMiner/lowercase-headers
+  │ [+] Negative Status codes:   404
+  │ [+] User Agent:              gobuster/3.6
+  │ [+] Timeout:                 10s
+  │ ===============================================================
+  │ Starting gobuster in directory enumeration mode
+  │ ===============================================================
+  │ /Admin                (Status: 302) [Size: 0] [--> /Auth/Login]
+  │ /Home                 (Status: 200) [Size: 25307]
+  │ /Profile              (Status: 302) [Size: 0] [--> /Auth/Login]
+  │ Progress: 1102 / 1103 (99.91%)
+  │ ===============================================================
+  │ Finished
+  │ ===============================================================
+  └────
+
+  With another wordlist focusing on APIs standarts ->
+
+  ┌────
+  │ gobuster dir --delay 200ms -u http://localhost:1337 -w /usr/share/wordlists/SecLists/Discovery/Web-Content/api/api-en
+  │ dpoints.txt
+  └────
+
+  ┌────
+  │ ===============================================================
+  │ Gobuster v3.6
+  │ by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+  │ ===============================================================
+  │ [+] Url:                     http://localhost:1337
+  │ [+] Method:                  GET
+  │ [+] Threads:                 10
+  │ [+] Delay:                   200ms
+  │ [+] Wordlist:                /usr/share/wordlists/SecLists/Discovery/Web-Content/a
+  │ pi/api-endpoints.txt
+  │ [+] Negative Status codes:   404
+  │ [+] User Agent:              gobuster/3.6
+  │ [+] Timeout:                 10s
+  │ ===============================================================
+  │ Starting gobuster in directory enumeration mode
+  │ ===============================================================
+  │ /api/auth/login       (Status: 405) [Size: 0]
+  │ /api/auth/logout      (Status: 200) [Size: 2]
+  │ /docs                 (Status: 301) [Size: 0] [--> http://localhost:1337/docs/]
+  │ /swagger/             (Status: 301) [Size: 0] [--> index.html]
+  │ /swagger/v1/swagger.json (Status: 200) [Size: 30131]
+  │ Progress: 269 / 270 (99.63%)
+  │ ===============================================================
+  │ Finished
+  │ ===============================================================
+  └────
+
+
+1.2 Directory Listing
+─────────────────────
+
+
+
+  :CVSS: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N
+
+  :RISK: HIGH
+
+
+  The `/docs/' enumerated from gobuster reveal some directory name and
+  contents listening
+
+  Another way to find this is at Sign up page, where contains a link
+  that reveals a Path directory, the same `/docs'
+
+  The terms and conditions file reveals it ->
+  ┌────
+  │               <p><input type="checkbox" id="termsCheck"/>
+  │                         I accept the <a href="/docs/legal.pdf">Terms and conditions</a>.</p>
+  │                     <div id="termsNotAccepted" style="display: none">You need to accept terms and conditions</div>
+  └────
+
+
+  ┌────
+  │ http://localhost:1337/docs/legal.pdf
+  └────
+
+  And a more dangerous find !! ->
+
+  ┌────
+  │ http://localhost:1337/docs/secret.txt
+  │ 
+  │ 
+  │ GET /docs/secret.txt HTTP/1.1
+  │ Host: localhost:1337
+  │ sec-ch-ua: "Chromium";v="139", "Not;A=Brand";v="99"
+  │ sec-ch-ua-mobile: ?0
+  │ sec-ch-ua-platform: "Linux"
+  │ Accept-Language: en-US,en;q=0.9
+  │ Upgrade-Insecure-Requests: 1
+  │ User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36
+  │ Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+  │ Sec-Fetch-Site: same-origin
+  │ Sec-Fetch-Mode: navigate
+  │ Sec-Fetch-User: ?1
+  │ Sec-Fetch-Dest: document
+  │ Referer: http://localhost:1337/docs/
+  │ Accept-Encoding: gzip, deflate, br
+  │ Connection: keep-alive
+  └────
+
+  Response ->
+
+  ┌────
+  │ HTTP/1.1 200 OK
+  │ Content-Length: 68
+  │ Content-Type: text/plain
+  │ Date: Sat, 06 Sep 2025 22:40:43 GMT
+  │ Server: Kestrel
+  │ Accept-Ranges: bytes
+  │ ETag: "1dc1f7eed30a244"
+  │ Last-Modified: Sat, 06 Sep 2025 22:38:12 GMT
+  │ a6bf25ac6e295da142fc0e892a62f4a8bd9cbe04fc7a19e1f70df26eeeb6cc4a  -
+  └────
+
+
+  ┌────
+  │ wget http://localhost:1337/docs/meeting-2018.11.21.pdf
+  └────
+
+  exiftooling that file we can find an User account name, and softwares
+  names and respective versions, wich can be weaponized for attackers
+
+  ┌────
+  │ exiftool meeting-2018.11.21.pdf.1
+  │ 
+  │ ExifTool Version Number         : 12.76
+  │ File Name                       : meeting-2018.11.21.pdf.1
+  │ Directory                       : .
+  │ File Size                       : 3.3 kB
+  │ File Modification Date/Time     : 2025:07:03 12:23:57-03:00
+  │ File Access Date/Time           : 2025:09:06 19:36:11-03:00
+  │ File Inode Change Date/Time     : 2025:09:06 19:36:11-03:00
+  │ File Permissions                : -rw-rw-r--
+  │ File Type                       : PDF
+  │ File Type Extension             : pdf
+  │ MIME Type                       : application/pdf
+  │ PDF Version                     : 1.4
+  │ Linearized                      : No
+  │ Page Count                      : 1
+  │ Producer                        : GPL Ghostscript 8.15
+  │ Create Date                     : 2015:08:14 14:57:52
+  │ Modify Date                     : 2015:08:14 14:57:52
+  │ Title                           : Microsoft Word - Dokument1
+  │ Creator                         : PScript5.dll Version 5.2.2
+  │ Author                          : Lorena
+  └────
