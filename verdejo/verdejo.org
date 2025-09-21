@@ -55,8 +55,37 @@ To detect Server-Side Template Injection, initially, fuzzing the template is a s
 
 - *Code Context* -> Confirm vulnerability by altering input parameters.
 
+** Some tools
 
-*** flowchart ->
+Hackmanit/TInjA - An efficient SSTI + CSTI scanner which utilizes novel polyglots
+ * https://github.com/Hackmanit/TInjA
+
+epinna/tplmap - Server-Side Template Injection and Code Injection Detection and Exploitation Tool
+ * https://github.com/epinna/tplmap
+
+vladko312/SSTImap - Automatic SSTI detection tool with interactive interface based on epinna/tplmap
+ * https://github.com/vladko312/SSTImap
+
+
+** Methodology
+
+Identify the vulnerable input field
+
+The attacker first locates an input field, URL parameter, or any user-controllable part of the application that is passed into a server-side template without sanitization or escaping.
+
+Different web frameworks use different template engines (e.g., Jinja2 for Python, Twig for PHP, or FreeMarker for Java).
+
+Common template expressions:
+
+*{{7*7}} for Jinja2 (Python).*
+*#{7*7} for Thymeleaf (Java).*
+
+
+*** detection flowchart ->
 
 [[../verdejo/imgs/detection.png]]
 
+
+
+*** detection flowchart 2 ->
+[[../verdejo/imgs/serverside-flowchart.png]]
