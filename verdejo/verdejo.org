@@ -66,6 +66,10 @@ epinna/tplmap - Server-Side Template Injection and Code Injection Detection and 
 vladko312/SSTImap - Automatic SSTI detection tool with interactive interface based on epinna/tplmap
  * https://github.com/vladko312/SSTImap
 
+*** detection flowchart ->
+
+[[../verdejo/imgs/detection.png]]
+
 
 ** Methodology
 
@@ -80,15 +84,6 @@ Common template expressions:
 *{{7*7}} for Jinja2 (Python).*
 
 *#{7*7} for Thymeleaf (Java).*
-
-
-*** detection flowchart ->
-
-[[../verdejo/imgs/detection.png]]
-
-
-
-
 
 *** detection flowchart 2 ->
 
