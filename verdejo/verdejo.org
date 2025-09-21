@@ -2,7 +2,7 @@
 #+author: gabriel
 #+description: Verdejo easy level from dockerlabs.es
 
-* machine setup
+*** machine setup
 
 *give permissions to the file* ->
 #+begin_src sh
@@ -23,7 +23,7 @@ PORT     STATE SERVICE REASON
 8089/tcp open  unknown syn-ack
 #+end_src
 
-* SSTI - Server Side Template Injection
+** SSTI - Server Side Template Injection
 
 Is a vulnerability that occurs when an attacker can inject malicious code into a template that is executed on the server.
 
@@ -44,7 +44,7 @@ https://vulnerable-site.com/?name={{payload}}
 This payload could contains Jinja template directives that enable the attacker to execute unauthorized code or manipulate the template engine.
 
 
-* Detection
+** Detection
 
 To detect Server-Side Template Injection, initially, fuzzing the template is a straightforward approach. This involves injecting a sequence of special caracters *(${{<%[%'"]}%\})* into the template and analyzing the differences in the server response to regular data versus this special payload. Vulnerability indicators include:
 
@@ -56,7 +56,7 @@ To detect Server-Side Template Injection, initially, fuzzing the template is a s
 - *Code Context* -> Confirm vulnerability by altering input parameters.
 
 
-** flowchart ->
+*** flowchart ->
 
 [[../verdejo/imgs/detection.png]]
 
