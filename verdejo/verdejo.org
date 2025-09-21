@@ -55,5 +55,12 @@ To detect Server-Side Template Injection, initially, fuzzing the template is a s
 
 - *Code Context* -> Confirm vulnerability by altering input parameters.
 
- *flowchart* ->
+  ------
+
+   *flowchart* ->
 [[../verdejo/imgs/detection.png]]
+
+*Testing at verdejo application* ->
+[[../verdejo/imgs/verdejo_inject.png]]
+
+[[../verdejo/imgs/inject_result.png]]
