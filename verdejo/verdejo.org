@@ -60,7 +60,9 @@ To detect Server-Side Template Injection, initially, fuzzing the template is a s
    *flowchart* ->
 [[../verdejo/imgs/detection.png]]
 
-*Testing at verdejo application* ->
+
+** *verdejo inject test* ->
+
 [[../verdejo/imgs/verdejo_inject.png]]
 
 [[../verdejo/imgs/inject_result.png]]

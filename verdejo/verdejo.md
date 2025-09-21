@@ -1,13 +1,14 @@
 
 # Table of Contents
 
-1.  [machine setup](#org2bed5c7)
-2.  [SSTI - Server Side Template Injection](#orgb80b4ee)
-3.  [Detection](#org358df90)
+1.  [machine setup](#orgeb7d2d5)
+2.  [SSTI - Server Side Template Injection](#org7d59667)
+3.  [Detection](#org781f92b)
+    1.  [**verdejo inject test** ->](#org04769c1)
 
 
 
-<a id="org2bed5c7"></a>
+<a id="orgeb7d2d5"></a>
 
 # machine setup
 
@@ -29,7 +30,7 @@
     8089/tcp open  unknown syn-ack
 
 
-<a id="orgb80b4ee"></a>
+<a id="org7d59667"></a>
 
 # SSTI - Server Side Template Injection
 
@@ -50,7 +51,7 @@ This can potentially allow an attacker to inject malicious code into the name pa
 This payload could contains Jinja template directives that enable the attacker to execute unauthorized code or manipulate the template engine.
 
 
-<a id="org358df90"></a>
+<a id="org781f92b"></a>
 
 # Detection
 
@@ -69,7 +70,11 @@ To detect Server-Side Template Injection, initially, fuzzing the template is a s
 
 ![img](../verdejo/imgs/detection.png)
 
-**Testing at verdejo application** ->
+
+<a id="org04769c1"></a>
+
+## **verdejo inject test** ->
+
 ![img](../verdejo/imgs/verdejo_inject.png)
 
 ![img](../verdejo/imgs/inject_result.png)
