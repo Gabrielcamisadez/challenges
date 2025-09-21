@@ -78,6 +78,7 @@ Different web frameworks use different template engines (e.g., Jinja2 for Python
 Common template expressions:
 
 *{{7*7}} for Jinja2 (Python).*
+
 *#{7*7} for Thymeleaf (Java).*
 
 
@@ -87,5 +88,8 @@ Common template expressions:
 
 
 
+
+
 *** detection flowchart 2 ->
+
 [[../verdejo/imgs/serverside-flowchart.png]]
