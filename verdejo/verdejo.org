@@ -42,3 +42,18 @@ https://vulnerable-site.com/?name={{payload}}
    #+end_src
 
 This payload could contains Jinja template directives that enable the attacker to execute unauthorized code or manipulate the template engine.
+
+
+* Detection
+
+To detect Server-Side Template Injection, initially, fuzzing the template is a straightforward approach. This involves injecting a sequence of special caracters *(${{<%[%'"]}%\})* into the template and analyzing the differences in the server response to regular data versus this special payload. Vulnerability indicators include:
+
+- Thrown errors, revealing the vulnerability and potentially the template engine
+- Absence of the payload in the reflection, or parts of it missing, implying the server processes it differentyl than regular data.
+
+- *Plaintext Context*  -> Distinguish from XSS by checking if the server evaluates template expressions *({{ 7 * 7 }}, ${ 7 * 7  })*
+
+- *Code Context* -> Confirm vulnerability by altering input parameters.
+
+[[../verdejo/imgs/detection.png]]
+n
