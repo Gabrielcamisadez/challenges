@@ -258,6 +258,6 @@ ssh-keygen -t ed25519 -f htb-shell
 
 with the RCE first shell established, add the ssh public key to the authorized_keys file inside .ssh directory ->
 #+begin_src shell
-ben@kobold:~/.ssh$ echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOmwwh9O7lkEfm7SyWv8d5h5B4dJDdkgInEXUOVfc2yJ ilak@ilak' > authorized_keys
-<h5B4dJDdkgInEXUOVfc2yJ ilak@ilak' > authorized_keys
+ben@kobold:~/.ssh$ echo 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOmwwh9O7lkEfm7SyWv8d5h5B4dJDdkgInEXUOVfc2yJ labs@labs' > authorized_keys
+<h5B4dJDdkgInEXUOVfc2yJ labs@labs' > authorized_keys
 #+end_src
